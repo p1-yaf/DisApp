@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق دردشة شبيه بدسكورد</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #313338;
+            color: #dbdee1;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .auth-container, .chat-container {
+            width: 100%;
+            max-width: 400px;
+            background-color: #2b2d31;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            box-sizing: border-box;
+        }
+        .chat-container {
+            max-width: 800px;
+            height: 90vh;
+            display: none;
+            flex-direction: column;
+        }
+        h2 {
+            text-align: center;
+            color: #ffffff;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 14px;
+            color: #949ba4;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background-color: #1e1f22;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 6px;
+            border: none;
+            background-color: #5865f2;
+            color: white;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #4752c4;
+        }
+        .switch-text {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #949ba4;
+        }
+        .switch-text span {
+            color: #00a8fc;
+            cursor: pointer;
+        }
+        #messages {
+            flex: 1;
+            overflow-y: auto;
+            background-color: #1e1f22;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .message {
+            background-color: #383a40;
+            padding: 10px;
+            border-radius: 6px;
+            word-break: break-word;
+        }
+        .message span.username {
+            font-weight: bold;
+            color: #00a8fc;
+            margin-left: 8px;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- صفحة تسجيل الدخول / إنشاء الحساب -->
+    <div class="auth-container" id="authBox">
+        <h2 id="formTitle">تسجيل الدخول</h2>
+        
+        <div class="form-group" id="emailGroup" style="display: none;">
+            <label>البريد الإلكتروني</label>
+            <input type="email" id="emailInput" placeholder="ادخل بريدك الإلكتروني">
+        </div>
+
+        <div class="form-group">
+            <label>اسم المستخدم</label>
+            <input type="text" id="usernameInput" placeholder="ادخل اسمك">
+        </div>
+
+        <div class="form-group">
+            <label>كلمة المرور</label>
+            <input type="password" id="passwordInput" placeholder="ادخل كلمة المرور">
+        </div>
+
+        <button id="authBtn" onclick="handleAuth()">دخول</button>
+        
+        <div class="switch-text" id="switchText">
+            لا تمتلك حساباً؟ <span onclick="toggleMode()">إنشاء حساب جديد</span>
+        </div>
+    </div>
+
+    <!-- واجهة الشات الرئيسية -->
+    <div class="chat-container" id="chatBox">
+        <h3 id="welcomeUser" style="margin-top: 0; color: #fff;"></h3>
+        <div id="messages"></div>
+        
+        <div class="input-area">
+            <input type="text" id="messageInput" placeholder="اكتب رسالتك هنا...">
+            <button onclick="sendMessage()" style="width: auto; padding: 0 20px;">إرسال</button>
+        </div>
+    </div>
+
+    <script>
+        let isSignUp = false;
+
+        function toggleMode() {
+            isSignUp = !isSignUp;
+            const formTitle = document.getElementById('formTitle');
+            const emailGroup = document.getElementById('emailGroup');
+            const authBtn = document.getElementById('authBtn');
+            const switchText = document.getElementById('switchText');
+
+            if (isSignUp) {
+                formTitle.textContent = "إنشاء حساب جديد";
+                emailGroup.style.display = "block";
+                authBtn.textContent = "تسجيل";
+                switchText.innerHTML = 'لديك حساب بالفعل؟ <span onclick="toggleMode()">تسجيل الدخول</span>';
+            } else {
+                formTitle.textContent = "تسجيل الدخول";
+                emailGroup.style.display = "none";
+                authBtn.textContent = "دخول";
+                switchText.innerHTML = 'لا تمتلك حساباً؟ <span onclick="toggleMode()">إنشاء حساب جديد</span>';
+            }
+        }
+
+        let currentUser = "";
+
+        function handleAuth() {
+            const username = document.getElementById('usernameInput').value.trim();
+            const password = document.getElementById('passwordInput').value.trim();
+
+            if (!username || !password) {
+                alert('الرجاء إدخال اسم المستخدم وكلمة المرور!');
+                return;
+            }
+
+            currentUser = username;
+            document.getElementById('authBox').style.display = 'none';
+            document.getElementById('chatBox').style.display = 'flex';
+            document.getElementById('welcomeUser').textContent = `أهلاً بك، ${currentUser} 👋 (وضع الواجهة)`;
+        }
+
+        const messageInput = document.getElementById('messageInput');
+        const messagesDiv = document.getElementById('messages');
+
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (text !== '') {
+                // عرض الرسالة محلياً للتجربة اللحظية
+                const msgEl = document.createElement('div');
+                msgEl.classList.add('message');
+                msgEl.innerHTML = `<span class="username">${currentUser}:</span> ${text}`;
+                messagesDiv.appendChild(msgEl);
+                messagesDiv.scrollTop = messagesDiv.scrollHeight;
+                
+                messageInput.value = '';
+            }
+        }
+
+        messageInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+    </script>
+
+</body>
+</html>
